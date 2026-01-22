@@ -10,6 +10,12 @@
   "schemes": [
     "http"
   ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/": {
       "get": {
@@ -23,7 +29,10 @@
     },
     "/competitions/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "ดึงข้อมูลการแข่งขันทั้งหมด",
         "parameters": [
           {
             "name": "keyword",
@@ -56,7 +65,10 @@
         }
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "สร้างการแข่งขันใหม่",
         "parameters": [
           {
             "name": "body",
@@ -95,7 +107,10 @@
     },
     "/competitions/{id}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "ดึงข้อมูลการแข่งขันตาม ID",
         "parameters": [
           {
             "name": "id",
@@ -117,7 +132,10 @@
         }
       },
       "put": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "แก้ไขข้อมูลการแข่งขัน",
         "parameters": [
           {
             "name": "id",
@@ -151,7 +169,10 @@
         }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "ลบการแข่งขัน",
         "parameters": [
           {
             "name": "id",
@@ -172,7 +193,10 @@
     },
     "/competitions/{id}/slots": {
       "get": {
-        "description": "",
+        "tags": [
+          "Competitions"
+        ],
+        "description": "ตรวจสอบจำนวนที่ว่าง",
         "parameters": [
           {
             "name": "id",
@@ -196,7 +220,10 @@
     },
     "/registrations/": {
       "post": {
-        "description": "",
+        "tags": [
+          "Registrations"
+        ],
+        "description": "ลงทะเบียนแข่งขัน",
         "parameters": [
           {
             "name": "body",
@@ -226,7 +253,10 @@
     },
     "/registrations/player/{playerId}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Registrations"
+        ],
+        "description": "ดึงประวัติการสมัครของผู้เล่น",
         "parameters": [
           {
             "name": "playerId",
@@ -247,7 +277,10 @@
     },
     "/registrations/{id}/cancel": {
       "put": {
-        "description": "",
+        "tags": [
+          "Registrations"
+        ],
+        "description": "ยกเลิกการสมัคร",
         "parameters": [
           {
             "name": "id",
@@ -268,7 +301,10 @@
     },
     "/registrations/{id}/approve": {
       "put": {
-        "description": "",
+        "tags": [
+          "Registrations"
+        ],
+        "description": "อนุมัติการสมัคร",
         "parameters": [
           {
             "name": "id",
@@ -289,7 +325,10 @@
     },
     "/registrations/{id}/reject": {
       "put": {
-        "description": "",
+        "tags": [
+          "Registrations"
+        ],
+        "description": "ปฏิเสธการสมัคร",
         "parameters": [
           {
             "name": "id",
@@ -310,7 +349,10 @@
     },
     "/payments/": {
       "post": {
-        "description": "",
+        "tags": [
+          "Payments"
+        ],
+        "description": "ชำระเงิน",
         "parameters": [
           {
             "name": "body",
@@ -343,7 +385,10 @@
     },
     "/payments/{paymentId}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Payments"
+        ],
+        "description": "ดึงรายละเอียดการชำระเงิน",
         "parameters": [
           {
             "name": "paymentId",
@@ -364,7 +409,10 @@
     },
     "/auth/users": {
       "get": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "description": "ดึงรายชื่อผู้ใช้ทั้งหมด",
         "responses": {
           "200": {
             "description": "OK"
@@ -377,7 +425,10 @@
     },
     "/auth/register": {
       "post": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "description": "สมัครสมาชิกใหม่",
         "parameters": [
           {
             "name": "body",
@@ -413,7 +464,10 @@
     },
     "/auth/login": {
       "post": {
-        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "description": "เข้าสู่ระบบ",
         "parameters": [
           {
             "name": "body",

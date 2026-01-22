@@ -4,18 +4,13 @@ const controller = require('../controllers/registrationController');
 
 app.post('/', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'ลงทะเบียนสมัครแข่งขัน'
-  /* #swagger.parameters['body'] = {
-      in: 'body',
-      description: 'ข้อมูลการสมัคร',
-      schema: { $userId: 1, $competitionId: 1 }
-  } */
+  // #swagger.description = 'ลงทะเบียนแข่งขัน'
   controller.registerCompetition
 );
 
 app.get('/player/:playerId', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'ดึงประวัติการสมัครแข่งของผู้เล่นตาม ID'
+  // #swagger.description = 'ดึงประวัติการสมัครของผู้เล่น'
   controller.getPlayerHistory
 );
 
@@ -27,13 +22,13 @@ app.put('/:id/cancel',
 
 app.put('/:id/approve', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'อนุมัติการสมัคร (Admin)'
+  // #swagger.description = 'อนุมัติการสมัคร'
   controller.approveRegistration
 );
 
 app.put('/:id/reject', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'ปฏิเสธการสมัคร (Admin)'
+  // #swagger.description = 'ปฏิเสธการสมัคร'
   controller.rejectRegistration
 );
 
