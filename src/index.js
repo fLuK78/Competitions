@@ -36,7 +36,7 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log('='.repeat(50));
-  console.log(`🚀 Server กำลังทำงานที่ http://localhost:${PORT}`);
-  console.log(`📊 Members API: http://localhost:${PORT}/members`);
+  console.log(`🚀 Server: http://localhost:${PORT}`);
+  console.log(`📚 API Docs: http://localhost:${PORT}/api-docs`);
   console.log('='.repeat(50));
 });

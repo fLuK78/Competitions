@@ -1,29 +1,62 @@
-exports.registerCompetition = (req, res) => {
-    res.status(201).json({ 
-        message: "จองการแข่งขันสำเร็จ (รอชำระเงิน/อนุมัติ)",
-        data: req.body 
-    });
-};
-exports.getPlayerHistory = (req, res) => {
-    res.status(200).json({ 
-        message: `ประวัติการแข่งขันของ Player: ${req.params.playerId}` 
-    });
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+exports.registerCompetition = async (req, res) => {
+    try {
+        const { userId, competitionId } = req.body;
+        const result = await prisma.registration.create({
+            data: {
+                userId: parseInt(userId),
+                competitionId: parseInt(competitionId),
+                status: "pending"
+            }
+        });
+        // จองสำเร็จ ส่งข้อมูลที่ลง DB 
+        res.status(201).json({ status: "success", data: result });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
 };
 
-exports.cancelRegistration = (req, res) => {
-    res.status(200).json({ 
-        message: `ยกเลิกการจองรหัส ${req.params.id} สำเร็จ` 
-    });
+exports.getPlayerHistory = async (req, res) => {
+    try {
+        const { playerId } = req.params;
+        const history = await prisma.registration.findMany({
+            where: { userId: parseInt(playerId) },
+            include: { competition: true } 
+        });
+        res.json({ status: "success", data: history });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
 };
 
-exports.approveRegistration = (req, res) => {
-    res.status(200).json({ 
-        message: `อนุมัติการสมัครรหัส ${req.params.id} แล้ว` 
-    });
+exports.cancelRegistration = async (req, res) => {
+    try {
+        const updated = await prisma.registration.update({
+            where: { id: parseInt(req.params.id) },
+            data: { status: "cancelled" }
+        });
+        res.json({ status: "success", message: "ยกเลิกแล้ว", data: updated });
+    } catch (error) { res.status(404).json({ message: error.message }); }
 };
 
-exports.rejectRegistration = (req, res) => {
-    res.status(200).json({ 
-        message: `ปฏิเสธการสมัครรหัส ${req.params.id} แล้ว` 
-    });
+exports.approveRegistration = async (req, res) => {
+    try {
+        const updated = await prisma.registration.update({
+            where: { id: parseInt(req.params.id) },
+            data: { status: "approved" }
+        });
+        res.json({ status: "success", message: "อนุมัติแล้ว", data: updated });
+    } catch (error) { res.status(404).json({ message: error.message }); }
+};
+
+exports.rejectRegistration = async (req, res) => {
+    try {
+        const updated = await prisma.registration.update({
+            where: { id: parseInt(req.params.id) },
+            data: { status: "rejected" }
+        });
+        res.json({ status: "success", message: "ปฏิเสธแล้ว", data: updated });
+    } catch (error) { res.status(404).json({ message: error.message }); }
 };

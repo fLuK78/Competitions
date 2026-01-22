@@ -45,7 +45,6 @@ exports.getAllUsers = async (req, res) => {
         });
         res.json({ status: "success", data: users });
     } catch (error) {
-        // แก้ตรงนี้เพื่อให้รู้ว่าทำไมถึงดึงไม่ได้
         res.status(500).json({ status: "error", message: error.message });
     }
 };
