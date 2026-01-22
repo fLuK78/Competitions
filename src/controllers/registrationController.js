@@ -11,7 +11,6 @@ exports.registerCompetition = async (req, res) => {
                 status: "pending"
             }
         });
-        // จองสำเร็จ ส่งข้อมูลที่ลง DB 
         res.status(201).json({ status: "success", data: result });
     } catch (error) {
         res.status(500).json({ status: "error", message: error.message });

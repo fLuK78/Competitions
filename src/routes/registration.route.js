@@ -10,7 +10,7 @@ app.post('/',
 
 app.get('/player/:playerId', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'ดึงประวัติการสมัครของผู้เล่น'
+  // #swagger.description = 'ดูประวัติการสมัครของผู้เล่น'
   controller.getPlayerHistory
 );
 
@@ -22,13 +22,13 @@ app.put('/:id/cancel',
 
 app.put('/:id/approve', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'อนุมัติการสมัคร'
+  // #swagger.description = 'อนุมัติการสมัคร (Admin/Staff)'
   controller.approveRegistration
 );
 
 app.put('/:id/reject', 
   // #swagger.tags = ['Registrations']
-  // #swagger.description = 'ปฏิเสธการสมัคร'
+  // #swagger.description = 'ปฏิเสธการสมัคร (Admin/Staff)'
   controller.rejectRegistration
 );
 
