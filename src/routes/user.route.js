@@ -2,9 +2,16 @@ const express = require('express');
 const app = express();
 const controller = require('../controllers/userController');
 
+
+app.post('/', 
+  // #swagger.tags = ['Users']
+  // #swagger.description = 'สร้างผู้ใช้งานใหม่ (Register)'
+  controller.createUser 
+);
+
 app.get('/:id',
   // #swagger.tags = ['Users']
-  // #swagger.description = 'ดูข้อมูลผู้ใช้'
+  // #swagger.description = 'ดูข้อมูลผู้ใช้ตาม ID'
   controller.getUserById
 );
 

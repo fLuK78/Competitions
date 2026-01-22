@@ -407,12 +407,57 @@
         }
       }
     },
+    "/users/": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "สร้างผู้ใช้งานใหม่ (Register)",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "example": "any"
+                },
+                "name": {
+                  "example": "any"
+                },
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                },
+                "phone": {
+                  "example": "any"
+                },
+                "role": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/users/{id}": {
       "get": {
         "tags": [
           "Users"
         ],
-        "description": "ดูข้อมูลผู้ใช้",
+        "description": "ดูข้อมูลผู้ใช้ตาม ID",
         "parameters": [
           {
             "name": "id",
