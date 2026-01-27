@@ -1,98 +1,271 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// GET / - ดึงทั้งหมด 
+/**
+ * GET /competitions
+ * query: keyword, minPlayer, sort, order
+ */
 exports.getCompetitions = async (req, res) => {
   try {
     const { keyword, minPlayer, sort, order } = req.query;
+
     const where = {};
-    if (keyword) where.name = { contains: keyword, mode: 'insensitive' };
-    if (minPlayer) where.maxPlayer = { gte: parseInt(minPlayer, 10) };
+
+    if (keyword) {
+      where.name = { contains: keyword, mode: 'insensitive' };
+    }
+
+    if (minPlayer) {
+      where.maxPlayer = { gte: parseInt(minPlayer, 10) };
+    }
 
     const competitions = await prisma.competition.findMany({
       where,
-      orderBy: { [sort || 'createdAt']: order === 'desc' ? 'desc' : 'asc' }
+      orderBy: {
+        [sort || 'createdAt']: order === 'desc' ? 'desc' : 'asc',
+      },
+      include: {
+        _count: { select: { registrations: true } },
+        user: true, // ถ้าไม่มี user ใน schema ลบออกได้
+      },
     });
 
-    res.json({ status: 'success', total: competitions.length, data: competitions });
+    res.json({
+      status: 'success',
+      message: 'Competitions retrieved successfully',
+      total: competitions.length,
+      data: competitions,
+    });
   } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
   }
 };
 
-// GET /:id - ดึงตาม ID 
+/**
+ * GET /competitions/:id
+ */
 exports.getCompetitionById = async (req, res) => {
-  try {
-    const data = await prisma.competition.findUnique({
-      where: { id: parseInt(req.params.id, 10) }
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid competition id',
     });
-    if (!data) return res.status(404).json({ status: 'error', message: 'ไม่พบรายการ' });
-    res.json({ status: 'success', data });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
   }
-};
 
-// GET /:id/slots - เช็คที่ว่าง 
-exports.getSlots = async (req, res) => {
   try {
-    const compId = parseInt(req.params.id, 10);
     const competition = await prisma.competition.findUnique({
-      where: { id: compId },
-      include: { _count: { select: { registrations: true } } }
+      where: { id },
+      include: {
+        _count: { select: { registrations: true } },
+        registrations: true,
+        user: true,
+      },
     });
-    if (!competition) return res.status(404).json({ status: 'error', message: 'ไม่พบรายการ' });
-    
+
+    if (!competition) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Competition not found',
+      });
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Competition retrieved successfully',
+      data: competition,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+};
+
+/**
+ * GET /competitions/:id/slots
+ */
+exports.getSlots = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid competition id',
+    });
+  }
+
+  try {
+    const competition = await prisma.competition.findUnique({
+      where: { id },
+      include: {
+        _count: { select: { registrations: true } },
+      },
+    });
+
+    if (!competition) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Competition not found',
+      });
+    }
+
     const booked = competition._count.registrations;
-    res.json({ 
-      status: 'success', 
-      maxPlayer: competition.maxPlayer,
-      booked: booked,
-      remaining: competition.maxPlayer - booked 
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: error.message });
-  }
-};
 
-// POST / - สร้าง
-exports.createCompetition = async (req, res) => {
-  const { name, date, maxPlayer, detail } = req.body;
-  if (!name || !date || !maxPlayer) return res.status(400).json({ status: 'error', message: 'ข้อมูลไม่ครบ' });
-
-  try {
-    const newComp = await prisma.competition.create({
-      data: { name, date: new Date(date), maxPlayer: parseInt(maxPlayer, 10), detail: detail || null }
-    });
-    res.status(201).json({ status: 'success', data: newComp });
-  } catch (error) {
-    res.status(500).json({ status: 'error', message: 'สร้างไม่สำเร็จ' });
-  }
-};
-
-// PUT /:id - แก้ไข
-exports.updateCompetition = async (req, res) => {
-  try {
-    const updated = await prisma.competition.update({
-      where: { id: parseInt(req.params.id, 10) },
+    res.json({
+      status: 'success',
+      message: 'Slots retrieved successfully',
       data: {
-        ...req.body,
-        date: req.body.date ? new Date(req.body.date) : undefined,
-        maxPlayer: req.body.maxPlayer ? parseInt(req.body.maxPlayer, 10) : undefined
-      }
+        maxPlayer: competition.maxPlayer,
+        booked,
+        remaining: competition.maxPlayer - booked,
+      },
     });
-    res.json({ status: 'success', data: updated });
   } catch (error) {
-    res.status(500).json({ status: 'error', message: 'แก้ไขไม่สำเร็จ' });
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
   }
 };
 
-// DELETE /:id - ลบ
-exports.deleteCompetition = async (req, res) => {
+/**
+ * POST /competitions
+ */
+exports.createCompetition = async (req, res) => {
+  const { name, date, maxPlayer, detail, userId } = req.body;
+
+  if (!name || !date || !maxPlayer) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'name, date, maxPlayer are required',
+    });
+  }
+
   try {
-    await prisma.competition.delete({ where: { id: parseInt(req.params.id, 10) } });
-    res.json({ status: 'success', message: 'ลบเรียบร้อย' });
+    const competition = await prisma.competition.create({
+      data: {
+        name: String(name),
+        date: new Date(date),
+        maxPlayer: parseInt(maxPlayer, 10),
+        detail: detail ? String(detail) : null,
+        userId: userId ? Number(userId) : undefined,
+      },
+      include: {
+        _count: { select: { registrations: true } },
+        user: true,
+      },
+    });
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Competition created successfully',
+      data: competition,
+    });
   } catch (error) {
-    res.status(404).json({ status: 'error', message: 'ไม่พบรายการ' });
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+};
+
+/**
+ * PUT /competitions/:id
+ */
+exports.updateCompetition = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid competition id',
+    });
+  }
+
+  const { name, date, maxPlayer, detail } = req.body;
+
+  try {
+    // เช็คจำนวนที่ลงทะเบียนแล้ว
+    const current = await prisma.competition.findUnique({
+      where: { id },
+      include: { _count: { select: { registrations: true } } },
+    });
+
+    if (!current) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Competition not found',
+      });
+    }
+
+    if (maxPlayer && parseInt(maxPlayer, 10) < current._count.registrations) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'maxPlayer cannot be less than registered players',
+      });
+    }
+
+    const competition = await prisma.competition.update({
+      where: { id },
+      data: {
+        ...(name ? { name: String(name) } : {}),
+        ...(date ? { date: new Date(date) } : {}),
+        ...(maxPlayer ? { maxPlayer: parseInt(maxPlayer, 10) } : {}),
+        ...(detail !== undefined ? { detail } : {}),
+      },
+      include: {
+        _count: { select: { registrations: true } },
+        user: true,
+      },
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Competition updated successfully',
+      data: competition,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+};
+
+/**
+ * DELETE /competitions/:id
+ */
+exports.deleteCompetition = async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Invalid competition id',
+    });
+  }
+
+  try {
+    await prisma.competition.delete({
+      where: { id },
+    });
+
+    res.json({
+      status: 'success',
+      message: 'Competition deleted successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
   }
 };
